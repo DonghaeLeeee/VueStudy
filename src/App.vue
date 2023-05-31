@@ -12,7 +12,6 @@
   @closeModal="모달창열렸니=false"/>  
 </transition>
 
-
 <!-- v-for="(a,i) in 작명" :key="i" -->
 <div class="menu">
   <a v-for="(a,i) in  메뉴들" :key="i">{{ a }}</a>
@@ -21,7 +20,12 @@
   <!-- component & props -->
   <!-- props 보낼때는 다양한 자료형을 보낼수있음 -->
   <!-- ex)컴포넌트명 : 데이터명="[1,2,3]" -->
-<Discount v-bind="오브젝트"/>
+<Discount v-if="showDiscount == true" :할인률="할인률"/>
+<button @click="priceSort">가격순정렬</button>
+<button @click="priceSort2">가격역순정렬</button>
+<button @click="sortBack">되돌리기</button>
+<button @click="nameSort">이름순정렬</button>
+<button @click="nameSort2">이름역순정렬</button>
 <Card @openModal="모달창열렸니=true; 누른거 = $event" :원룸="원룸들[i]" v-for="(a,i) in 원룸들" :key="i"/>
   
 </template>
@@ -38,9 +42,12 @@ import Card from './CardView.vue';
 export default {
   name: 'App',
   data() {
+    // 데이터바인딩 할것 등록
     return{
-      // 데이터바인딩 할것 등록
-      오브젝트 : { name : "Kim", age : 20},
+      할인률 : 3,
+      showDiscount : true,
+      // array,object 데이터의 각각 별개의 사본을 만들때 사용 [...array자료]
+      원룸들오리지널 : [...data],
       누른거 : 0,
       원룸들 : data,
       모달창열렸니 : false,
@@ -52,10 +59,49 @@ export default {
   },
   methods : {
     // function을 쓸때는 this.가 무조건들어간다.
-    increase(){
-        this.신고수++;
+    priceSort() {
+      // this.원룸들.sort()는 가나다순 정렬 ->문자정렬
+      this.원룸들.sort(function(a,b) {
+        return a.price - b.price;
+        //  a-b 가 음수면 왼쪽으로 가라고 sort()함수가 내부적으로 실행
+      })
+    },
+    priceSort2() {
+      this.원룸들.sort(function(a,b) {
+        return b.price - a.price;
+      })
+    },
+    sortBack() {
+      this.원룸들 = [...this.원룸들오리지널];
+    },
+    nameSort() {
+      this.원룸들.sort(function(a,b) {
+        if(a.title > b.title) return 1;
+        if(b.title > a.title) return -1;
+        return 0;
+      });
+    },
+    nameSort2() {
+      this.원룸들.sort(function(a,b) {
+        if(a.title > b.title) return -1;
+        if(b.title > a.title) return 1;
+        return 0;
+      });
     }
   },
+  // lifecycle Hook
+  // beforeCreate(), created(),beforeMount(),mounted(),beforeUpdate(),update()등등
+  mounted() {
+    let interval = setInterval(() => {
+        this.할인률 --;
+        if(this.할인률==0) {
+          clearInterval(interval);
+        }
+    }, 1000);
+
+  
+  },
+
   components: {
     // 컴포넌트를 만들때 등록
    Discount : Discount,
